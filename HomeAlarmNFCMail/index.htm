@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>HomeAlarm Arduino v1.0</title>
+        <script>
+			alarmState = "";
+			var alarmStateState = 0;
+
+			function GetArduinoIO(){
+				nocache = "&nocache=" + Math.random() * 1000000;
+				var request = new XMLHttpRequest();
+				request.onreadystatechange = function(){
+					if (this.readyState == 4) {
+						if (this.status == 200) {
+							if (this.responseXML != null) {
+								var count;
+								var num_an = this.responseXML.getElementsByTagName('switch').length;
+								for (count = 0; count < num_an; count++) {
+									document.getElementsByClassName("switches")[count].innerHTML =
+										this.responseXML.getElementsByTagName('switch')[count].childNodes[0].nodeValue;
+								}
+								if (this.responseXML.getElementsByTagName('switch')[0].childNodes[0].nodeValue == "ON") {
+									document.getElementById("alarm").style.color = "red";
+									document.getElementById("alarm").style.fontWeight = "bold";
+								} else {
+									document.getElementById("alarm").style.color = "green";
+									document.getElementById("alarm").style.fontWeight = "normal";
+								}
+								if (this.responseXML.getElementsByTagName('button')[0].childNodes[0].nodeValue === "ON") {
+									document.getElementById("alarmState").innerHTML = "State ON";
+									document.getElementById("alarmState").style.backgroundColor = "red";
+									alarmStateState = 1;
+								} else {
+									document.getElementById("alarmState").innerHTML = "State OFF";
+									document.getElementById("alarmState").style.backgroundColor = "green";
+									alarmStateState = 0;
+								}
+							}
+						}
+					}
+				}
+
+				request.open("GET", "ajax_inputs" + alarmState + nocache, true);
+				request.send(null);
+				setTimeout('GetArduinoIO()', 1000);
+				alarmState = "";
+			}
+
+			function GetButton1(){
+				if (alarmStateState === 1) {
+					alarmStateState = 0;
+					alarmState = "&state=0";
+				} else {
+					alarmStateState = 1;
+					alarmState = "&state=1";
+				}
+			}
+		</script>
+		<style>
+			.container {
+				display : block;
+				float: left;
+				padding: 5px 5px 5px 5px;
+				width: 98%;
+			}
+			.IO_box {
+				float: left;
+				margin: 0 20px 20px 0;
+				border: 1px solid black;
+				padding: 0 5px 0 5px;
+				width: 500px;
+			}
+			h1 {
+				font-size: 120%;
+				color: #000000;
+				margin: 0 0 10px 0;
+			}
+			h2 {
+				font-size: 85%;
+				color: #000000;
+				margin: 5px 0 5px 0;
+			}
+			p, form, button {
+				font-size: 100%;
+				color: #252525;
+			}
+			.small_text {
+				font-size: 70%;
+				color: #737373;
+			}
+		</style>
+    </head>
+    <body onload="GetArduinoIO()">
+        <h1>HomeAlarm Arduino v1.0</h1>
+		<div class="container">
+			<div class="IO_box">
+				<h2>Alarm State</h2>
+				<p>PIR Sensor / Switch 2 (D3): <span id="alarm" class="switches">...</span></p>
+			</div>
+		</div>
+		<div class="container">
+			<div class="IO_box">
+				<h2>Sensors</h2>
+				<p>DS18B20 State / Switch 1 (D2): <span class="switches">...</span></p>
+				<p>DS18B20 Value / Switch 3 (D2): <span class="switches">...</span></p>
+			</div>
+		</div>
+		<div class="container">
+			<div class="IO_box">
+				<h2>Alarm Activation/Disactivation</h2>
+				<br /><button type="button" id="alarmState" onclick="GetButton1()">State ON</button><br /><br />
+			</div>
+		</div>
+    </body>
+</html>
