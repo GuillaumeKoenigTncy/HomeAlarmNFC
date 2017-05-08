@@ -54,8 +54,8 @@ const byte buzzer = 45;               // OUTPUT - buzzer
 // Defines LEDs states 
 volatile byte alarm = LOW;
 volatile byte warning = LOW;
-volatile byte idle = HIGH;
-volatile byte alarmState = HIGH;
+volatile byte idle = LOW;
+volatile byte alarmState = LOW;
 volatile byte PIRState = LOW;
 
 // Defines counters 
@@ -93,10 +93,11 @@ void setup(){
 
   // Calibrates PIR sensor (between 30 and 60 sec)
   Serial.print("Calibrating sensor ");
-  for(int i = 0; i < 5; i++){
+  for(int i = 0; i < 60; i++){
     Serial.print(".");
     delay(1000);
   }
+  Buzz();
   Serial.println();
   
   if (!SD.begin(4)) {
@@ -138,10 +139,6 @@ void setup(){
   
   RC522.init();
   Serial.println("RFIF init");
-
-  Serial.println();
-  Serial.println(" -!- Alarm enabled -!-");
-  Serial.println();
   
   sensors.begin();
 }
@@ -403,7 +400,7 @@ void XML_response(EthernetClient cl){
     }
     cl.println("</switch>");
     cl.print("<switch>");
-    cl.print(sensors.getTempCByIndex(0));
+    cl.print(sensors.getTempCByIndex(0)-2);
     cl.print("</switch>");
     
     // button alarmStates
